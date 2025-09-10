@@ -10,6 +10,8 @@ class ANIMSWITCHER_API UAnimalAnimInstance : public UAnimInstance
     GENERATED_BODY()
 
 public:
+    virtual void NativeInitializeAnimation() override;
+
     // Drive locomotion blending in ABP state machine
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim")
     float Speed = 0.f;
@@ -43,4 +45,3 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Anim|Runtime")
     UAnimMontage* PlayOneShot(UAnimationAsset* Asset, float BlendInTime = -1.f, float BlendOutTime = -1.f, float PlayRate = 1.f);
 };
-

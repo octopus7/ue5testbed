@@ -1,7 +1,15 @@
 #include "AnimalAnimInstance.h"
 
 #include "Animation/AnimMontage.h"
+#include "Animation/AnimTypes.h"
 #include "Animation/AnimSequenceBase.h"
+
+void UAnimalAnimInstance::NativeInitializeAnimation()
+{
+    Super::NativeInitializeAnimation();
+    // Ensure root motion from montages is applied to the owning character
+    RootMotionMode = ERootMotionMode::RootMotionFromMontagesOnly;
+}
 
 UAnimMontage* UAnimalAnimInstance::PlayOneShot(UAnimationAsset* Asset, float BlendInTime, float BlendOutTime, float PlayRate)
 {

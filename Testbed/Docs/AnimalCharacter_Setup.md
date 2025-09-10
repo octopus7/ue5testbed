@@ -99,6 +99,13 @@
   - Sit 전이: 0.1~0.2초 (전환 애니 사용 시 더 짧게)
 - 그래프 마지막에 `Slot 'DefaultSlot'` 노드 추가(원샷 몽타주 재생용)
 
+5) 루트 모션(특히 Turn90L/R)에 적용하기
+- Turn 애니메이션(Sequence 또는 Montage)에 Root Motion을 활성화합니다.
+  - Sequence: 애셋 상세 패널 → Enable Root Motion 체크, Root Motion Root Lock 필요 시 설정
+  - Montage: 소스 시퀀스가 Root Motion 포함이면 그대로 반영됩니다.
+- `AnimalAnimInstance`는 기본적으로 `RootMotionFromMontagesOnly` 모드이므로, 위 원샷(턴/어택/히트/먹기) 재생 시 루트모션이 캐릭터에 적용됩니다.
+- AnimGraph에 `DefaultSlot`가 연결되어 있어야 몽타주 루트모션이 본 루프 위에 합성됩니다.
+
 3) Event Graph(선택)
 - 별도 로직 불필요. 변수 값은 컴포넌트(`AnimSwitchComponent`)가 매 Tick `AnimalAnimInstance`에 전달합니다.
 
