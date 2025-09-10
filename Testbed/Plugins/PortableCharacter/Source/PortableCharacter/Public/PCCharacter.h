@@ -44,15 +44,11 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
     UInputAction* JumpAction;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-    UInputAction* SprintAction;
-
     // Movement tuning
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
     float WalkSpeed = 400.f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-    float SprintSpeed = 700.f;
+    
 
 private:
     // Input handlers
@@ -60,7 +56,5 @@ private:
     void Look(const FInputActionValue& Value);
     void StartJump();
     void StopJump();
-    void StartSprint();
-    void StopSprint();
+    
 };
-

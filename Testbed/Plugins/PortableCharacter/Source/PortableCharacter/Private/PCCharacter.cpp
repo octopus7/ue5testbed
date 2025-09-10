@@ -76,12 +76,6 @@ void APCCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
             EIC->BindAction(JumpAction, ETriggerEvent::Completed, this, &APCCharacter::StopJump);
             EIC->BindAction(JumpAction, ETriggerEvent::Canceled, this, &APCCharacter::StopJump);
         }
-        if (SprintAction)
-        {
-            EIC->BindAction(SprintAction, ETriggerEvent::Started, this, &APCCharacter::StartSprint);
-            EIC->BindAction(SprintAction, ETriggerEvent::Completed, this, &APCCharacter::StopSprint);
-            EIC->BindAction(SprintAction, ETriggerEvent::Canceled, this, &APCCharacter::StopSprint);
-        }
     }
 }
 
@@ -118,20 +112,3 @@ void APCCharacter::StopJump()
 {
     StopJumping();
 }
-
-void APCCharacter::StartSprint()
-{
-    if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
-    {
-        MoveComp->MaxWalkSpeed = SprintSpeed;
-    }
-}
-
-void APCCharacter::StopSprint()
-{
-    if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
-    {
-        MoveComp->MaxWalkSpeed = WalkSpeed;
-    }
-}
-
