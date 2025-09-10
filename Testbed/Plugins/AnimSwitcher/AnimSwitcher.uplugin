@@ -1,0 +1,20 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "0.1.0",
+  "FriendlyName": "Anim Switcher",
+  "Description": "Skeleton-only plugin for switching animations via component.",
+  "Category": "Animation",
+  "CreatedBy": "Testbed",
+  "CreatedByURL": "",
+  "CanContainContent": false,
+  "IsBetaVersion": true,
+  "Modules": [
+    {
+      "Name": "AnimSwitcher",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ]
+}
+
