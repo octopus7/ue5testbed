@@ -10,7 +10,10 @@ public class AnimSwitcher : ModuleRules
         {
             "Core",
             "CoreUObject",
-            "Engine"
+            "Engine",
+            "UMG",
+            "Slate",
+            "SlateCore"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[]
@@ -18,4 +21,3 @@ public class AnimSwitcher : ModuleRules
         });
     }
 }
-

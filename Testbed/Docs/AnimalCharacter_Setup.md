@@ -77,6 +77,35 @@
 ## 5) 레벨 배치
 - `BP_Bird`를 레벨에 드래그 앤 드롭으로 배치하면 준비 완료입니다.
 
+## 6) UMG 버튼으로 애니/상태 전환 제어
+아래 절차로 버튼 UI를 만들어 각 애니/상태 전환을 호출할 수 있습니다.
+
+1) 위젯 블루프린트 생성
+- `Add → User Interface → Widget Blueprint` 선택 → 부모 클래스에서 `AnimSwitcherControlWidget` 선택
+- 이름 예: `WBP_AnimControls`
+- 위젯에 버튼을 배치하고, 아래 변수명을 정확히 설정(Variable 체크)하면 C++에서 자동으로 OnClicked가 바인딩됩니다.
+  - `AttackButton`, `EatButton`, `HitButton`, `TurnLeftButton`, `TurnRightButton`, `SitToggleButton`, `SwimToggleButton`, `DieButton`
+  - 버튼 텍스트는 자유롭게 설정
+- 필요 시 그래프에서 `SetTargetActor(Target)` 또는 `SetTargetComponent(Comp)` 호출로 대상 지정 가능
+
+2) 레벨에 UI 드라이버 액터 배치(자동 생성 옵션)
+- `Add Actor` → `AnimSwitcherUIDriver`를 레벨에 배치
+- 디테일 패널
+  - `UIClass`에 `WBP_AnimControls` 지정
+  - `TargetActor`에 제어할 동물 캐릭터(BP_Bird 등) 지정
+  - `ZOrder`/`bShowMouseCursor` 필요 시 조정
+
+3) 플레이 시 동작
+- 각 버튼 클릭 시 다음 함수가 호출됩니다.
+  - AttackButton → `RequestAttack()`
+  - EatButton → `RequestEat()`
+  - HitButton → `RequestHit()`
+  - TurnLeftButton → `RequestTurnLeft90()`
+  - TurnRightButton → `RequestTurnRight90()`
+  - SitToggleButton → `SetSitting(!IsSitting())`
+  - SwimToggleButton → `SetSwimming(!IsSwimming())`
+  - DieButton → `RequestDie()`
+
 ## 키 매핑 표 (애셋명 → 내부 키)
 - Idle 계열
   - Bird_Idle → Idle

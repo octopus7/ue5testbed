@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "AnimSwitchTypes.h"
 #include "AnimalAnimSet.h"
+#include "TimerManager.h"
 #include "AnimSwitchComponent.generated.h"
 
 class USkeletalMeshComponent;
@@ -79,6 +80,15 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "AnimSwitch|Runtime")
     void RequestTurnRight90();
+
+    UFUNCTION(BlueprintPure, Category = "AnimSwitch|Runtime")
+    bool IsSitting() const { return bIsSitting; }
+
+    UFUNCTION(BlueprintPure, Category = "AnimSwitch|Runtime")
+    bool IsSwimming() const { return bIsSwimming; }
+
+    UFUNCTION(BlueprintPure, Category = "AnimSwitch|Runtime")
+    bool IsDead() const { return bIsDead; }
 
 public:
     // Strongly-typed asset set for easy assignment in BP
