@@ -18,5 +18,10 @@
 				"Editor"
 			]
 		}
+		,
+		{
+			"Name": "PortableCharacter",
+			"Enabled": true
+		}
 	]
 }
