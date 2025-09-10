@@ -23,5 +23,10 @@
 			"Name": "PortableCharacter",
 			"Enabled": true
 		}
+		,
+		{
+			"Name": "AnimSwitcher",
+			"Enabled": true
+		}
 	]
 }
