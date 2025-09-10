@@ -2,6 +2,7 @@
 
 #include "Animation/AnimationAsset.h"
 #include "Animation/AnimSequenceBase.h"
+#include "AnimalAnimInstance.h"
 #include "Animation/AnimInstance.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "TimerManager.h"
@@ -75,10 +76,19 @@ void UAnimSwitchComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
     {
         return; // freeze on death pose
     }
-
     const float Speed = GetOwnerSpeed();
-    const FName DesiredKey = ChooseBaseLoopKey(Speed);
-    ApplyBaseLoopIfNeeded(DesiredKey);
+
+    // If using AnimInstance (preferred for blending), just feed variables and let ABP handle the cross-fade
+    if (UAnimalAnimInstance* AI = Cast<UAnimalAnimInstance>(TargetMesh->GetAnimInstance()))
+    {
+        AI->SetLocomotionVars(Speed, bIsSwimming, bIsSitting, bIsDead);
+    }
+    else
+    {
+        // Fallback: single node (no blend)
+        const FName DesiredKey = ChooseBaseLoopKey(Speed);
+        ApplyBaseLoopIfNeeded(DesiredKey);
+    }
 }
 
 float UAnimSwitchComponent::GetOwnerSpeed() const
@@ -190,35 +200,46 @@ void UAnimSwitchComponent::PlayOneShot(UAnimationAsset* Asset, TFunction<void()>
     {
         return;
     }
-    if (bForceSingleNodeMode)
+    if (UAnimalAnimInstance* AI = Cast<UAnimalAnimInstance>(TargetMesh->GetAnimInstance()))
     {
-        TargetMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-    }
-
-    bPlayingOneShot = true;
-    TargetMesh->PlayAnimation(Asset, /*bLoop=*/false);
-    if (UAnimSequenceBase* Seq = Cast<UAnimSequenceBase>(Asset))
-    {
-        const float Len = Seq->GetPlayLength();
-        FTimerDelegate Del;
-        if (OnFinished)
+        bPlayingOneShot = true;
+        if (UAnimMontage* M = AI->PlayOneShot(Asset))
         {
-            Del = FTimerDelegate::CreateLambda([this, OnFinished]()
+            // Bind to montage end to resume base loop
+            FOnMontageEnded EndDelegate;
+            EndDelegate.BindLambda([this, OnFinished](UAnimMontage*, bool /*bInterrupted*/)
             {
-                OnFinished();
+                if (OnFinished) { OnFinished(); }
                 bPlayingOneShot = false;
                 ResumeBaseLoop();
             });
+            AI->Montage_SetEndDelegate(EndDelegate, M);
         }
         else
         {
-            Del = FTimerDelegate::CreateLambda([this]()
+            bPlayingOneShot = false;
+        }
+    }
+    else
+    {
+        // Fallback: Single node without blend
+        if (bForceSingleNodeMode)
+        {
+            TargetMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+        }
+        bPlayingOneShot = true;
+        TargetMesh->PlayAnimation(Asset, /*bLoop=*/false);
+        if (UAnimSequenceBase* Seq = Cast<UAnimSequenceBase>(Asset))
+        {
+            const float Len = Seq->GetPlayLength();
+            FTimerDelegate Del = FTimerDelegate::CreateLambda([this, OnFinished]()
             {
+                if (OnFinished) { OnFinished(); }
                 bPlayingOneShot = false;
                 ResumeBaseLoop();
             });
+            GetWorld()->GetTimerManager().SetTimer(OneShotTimerHandle, Del, Len / FMath::Max(PlayRate, 0.01f), /*bLoop=*/false);
         }
-        GetWorld()->GetTimerManager().SetTimer(OneShotTimerHandle, Del, Len / FMath::Max(PlayRate, 0.01f), /*bLoop=*/false);
     }
 }
 

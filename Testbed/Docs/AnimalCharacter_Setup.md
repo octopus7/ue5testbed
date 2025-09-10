@@ -17,7 +17,8 @@
 3. 이름 예: `BP_Bird`
 4. `BP_Bird`를 열고 `Mesh (SkeletalMeshComponent)`에 사용 중인 동물 스켈레탈 메시를 지정
    - 기본값으로 컴포넌트가 메시를 `AnimationSingleNode` 모드로 전환하여 직접 재생합니다(`bForceSingleNodeMode = true`).
-   - AnimBP를 유지·사용하려면 `bForceSingleNodeMode = false`로 바꾸고, ABP 쪽에서 상태 변수/이벤트를 연동하세요.
+   - 수영↔지상 전환을 자연스럽게 블렌딩하려면 AnimBP 기반을 권장합니다.
+     - 방법: `bForceSingleNodeMode = false`로 변경하고, 아래 "ABP로 매끄러운 블렌딩 구성" 절차를 수행하세요.
 
 참고: `AAnimSwitchCharacter`에는 기본으로 `AnimSwitchComponent`가 포함되어 있습니다. 다른 액터/캐릭터에 붙이고 싶다면 `Add → Anim Switch Component`로 수동 추가해도 됩니다.
 
@@ -73,6 +74,40 @@
 - 앉기 전환:
   - `RequestSit()` → `StandToSit` 원샷 재생 후 IdleSitting 루프
   - `RequestStand()` → `SitToStand` 원샷 재생 후 Idle/Walk/Run 루프
+
+### ABP로 매끄러운 블렌딩 구성(권장)
+수영과 일반 이동 사이에 전환 애니가 없는 경우, AnimBlueprint 상태머신의 전이 블렌드 시간을 사용해 자연스럽게 연결합니다.
+
+1) AnimBlueprint 생성
+- 콘텐츠 브라우저 → 우클릭 → Animation → Animation Blueprint
+- Skeleton 선택 → Parent Class: `AnimalAnimInstance`
+- 이름 예: `ABP_Animal`
+
+2) AnimGraph 구성
+- State Machine 추가: `LocomotionSM`
+- 상태 예시:
+  - Ground_Idle, Ground_Walk, Ground_Run
+  - Swim_Idle, Swim_Forward
+  - Sit_Idle
+- 전이 규칙:
+  - Ground ↔ Swim: `bSwimming`에 따라 분기
+  - Ground_Idle/Walk/Run 간: `Speed` 임계값으로 분기(`WalkSpeedThreshold`, `RunSpeedThreshold`와 일치하게 설정)
+  - Sit: `bSitting`이 true면 Sit_Idle로, false면 Ground/Swim로 복귀
+- 각 전이의 Blend Settings:
+  - Ground ↔ Swim: Blend Time 0.25~0.4초 권장, "Blend Profile" 없으면 기본값 사용
+  - Idle↔Walk/Run: 0.15~0.25초
+  - Sit 전이: 0.1~0.2초 (전환 애니 사용 시 더 짧게)
+- 그래프 마지막에 `Slot 'DefaultSlot'` 노드 추가(원샷 몽타주 재생용)
+
+3) Event Graph(선택)
+- 별도 로직 불필요. 변수 값은 컴포넌트(`AnimSwitchComponent`)가 매 Tick `AnimalAnimInstance`에 전달합니다.
+
+4) 캐릭터 메시 세팅
+- `Mesh → Animation Mode`: Use Animation Blueprint
+- `Anim Class`: `ABP_Animal` 지정
+- 컴포넌트의 `bForceSingleNodeMode`는 false로 설정
+
+이렇게 설정하면 수영↔지상 전환 시 ABP의 전이 블렌딩으로 자연스럽게 이어집니다. 액션/리액션은 컴포넌트가 `PlaySlotAnimationAsDynamicMontage`로 `DefaultSlot`에 재생하므로 기본 루프 위에 부드럽게 합성됩니다.
 
 ## 5) 레벨 배치
 - `BP_Bird`를 레벨에 드래그 앤 드롭으로 배치하면 준비 완료입니다.
